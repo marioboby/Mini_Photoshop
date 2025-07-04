@@ -2,17 +2,18 @@
 #include "UserUI.h"
 
 int main () {
-    ImageProcessor *processor;
-    UserUI ui(processor);
+    ImageProcessor *processor = nullptr;
+    UserUI ui;
+    ImageManager mn(&processor);
     string name ,outputName;
     bool running = true;
     int choice ;
 
     cout << "Welcome to Mini Photoshop!\n";
-    Image image = ui.loadImage(name);
-    Image result = image;
+    Image image = mn.loadImage(name);
 
     while (running) {
+        Image result = image;
         ui.mainMenu();
         cin >> choice;
 
@@ -22,18 +23,84 @@ int main () {
             cin.ignore(INT_MAX, '\n');
         }
 
-        ui.setImageName(outputName);
-
         switch (choice) {
             case 1:
+                ui.setImageName(outputName);
                 processor = new GrayScale();
+                mn.saveImg(result, outputName);
                 break;
             case 2:
+                ui.setImageName(outputName);
                 processor = new BlackWhite();
+                mn.saveImg(result, outputName);
                 break;
             case 3:
+                ui.setImageName(outputName);
                 processor = new InfraRed();
+                mn.saveImg(result, outputName);
                 break;
+            case 4:
+                ui.setImageName(outputName);
+                processor = new Brightness();
+                mn.saveImg(result, outputName);
+                break;
+            case 5:
+                ui.setImageName(outputName);
+                processor = new Flip();
+                mn.saveImg(result, outputName);
+                break;
+            case 6:
+                ui.setImageName(outputName);
+                processor = new GrayScale();
+                mn.saveImg(result, outputName);
+                break;
+            case 7:
+                ui.setImageName(outputName);
+                processor = new BlackWhite();
+                mn.saveImg(result, outputName);
+                break;
+            case 8:
+                ui.setImageName(outputName);
+                processor = new InfraRed();
+                mn.saveImg(result, outputName);
+                break;
+            case 9:
+                ui.setImageName(outputName);
+                processor = new Brightness();
+                mn.saveImg(result, outputName);
+                break;
+            case 10:
+                ui.setImageName(outputName);
+                processor = new Flip();
+                mn.saveImg(result, outputName);
+                break;
+            case 11:
+                ui.setImageName(outputName);
+                processor = new GrayScale();
+                mn.saveImg(result, outputName);
+                break;
+            case 12:
+                ui.setImageName(outputName);
+                processor = new BlackWhite();
+                mn.saveImg(result, outputName);
+                break;
+            case 13:
+                ui.setImageName(outputName);
+                processor = new InfraRed();
+                mn.saveImg(result, outputName);
+                break;
+            case 14:
+                ui.setImageName(outputName);
+                processor = new Brightness();
+                mn.saveImg(result, outputName);
+                break;
+            case 15:
+                ui.setImageName(outputName);
+                processor = new Flip();
+                mn.saveImg(result, outputName);
+                break;
+            case 16:
+                image = mn.loadImage(name);
             case 17:
                 cout << "Exitting... Thank you for Using Mini Photoshop!";
                 running = false;
@@ -42,10 +109,6 @@ int main () {
                 cout << "Invalid Choice. Try Again.";
         }
 
-        result = processor->processImage(result, outputName);
-        cout << "Image Processed Successfully By Filter " << processor->getFilterName() << endl;
-        result.saveImage(outputName);
-        system(outputName.c_str());
     }
 
     return 0;

@@ -16,6 +16,14 @@ public:
     virtual string getFilterName() const = 0;
 };
 
+class ImageManager {
+    ImageProcessor **processor;
+public:
+    ImageManager(ImageProcessor **proc);
+    void saveImg(Image &image, string &outputName);
+    Image loadImage(string name) const;
+};
+
 class GrayScale : public ImageProcessor {
 public:
     Image processImage(Image &image, const string &outputName) override;
@@ -38,6 +46,8 @@ public:
 };
 
 class Flip : public ImageProcessor {
+    Image flipVertical(Image &image);
+    Image flipHorizontal(Image &image);
 public:
     Image processImage(Image &image, const string &outputName) override;
     string getFilterName() const override;
@@ -50,6 +60,9 @@ public:
 };
 
 class Brightness : public ImageProcessor {
+    void darken (Image &image);
+    void brighten (Image &image);
+public:
     Image processImage(Image &image, const string &outputName) override;
     string getFilterName() const override;
 };
@@ -113,6 +126,41 @@ public:
     string getFilterName() const override;
 };
 
+
+
+inline ImageManager::ImageManager(ImageProcessor **proc) {
+    processor = proc;
+}
+
+inline Image ImageManager::loadImage(string name) const {
+    cout << "Please Enter Name of the Image which you want to apply a filter on followed with (.png, .jpeg, .jpg, .bmp): ";
+
+    cin >> name;
+    Image image;
+
+    while(true) {
+        try {
+            image.loadNewImage(name);
+            return image;
+        }
+        catch (invalid_argument) {
+            cout << "Please enter a valid name: ";
+            cin >> name;
+        }
+    }
+}
+
+inline void ImageManager::saveImg(Image &image, string &outputName) {
+    if (!processor) {
+        cerr << "Processor not set! Please select a filter first.\n";
+        return;
+    }
+    image = (*processor)->processImage(image, outputName);
+    cout << "Image Processed Successfully By Filter " << (*processor)->getFilterName() << endl;
+    image.saveImage(outputName);
+    system(outputName.c_str());
+}
+
 /**
  * FILTER IMPLEMENTATION
 */
@@ -152,7 +200,7 @@ inline string BlackWhite::getFilterName() const {
 inline Image BlackWhite::processImage(Image &image, const string &outputName) {
     for (int i =0 ; i < image.width; i++) {
         for (int j = 0; j < image.height; j++) {
-            unsigned int average;
+            unsigned int average = 0;
 
             for (int k = 0; k < image.channels; k++) {
                 average += image(i, j, k);
@@ -189,6 +237,7 @@ inline Image InfraRed::processImage(Image &image, const string &outputName) {
             image(i ,j ,2)= 255 - image(i ,j ,2);
         }
     }
+    delete processor;
     return image;
 }
 
@@ -196,10 +245,38 @@ inline string Brightness::getFilterName() const {
     return "Brightness";
 }
 
+inline void Brightness::darken(Image &image) {
+    for (int i =0 ; i < image.width; i++){
+        for (int j =0 ; j< image.height; j++) {
+            int final2;
+            for (int k = 0; k < image.channels; k++) {
+
+                final2 = image(i, j, k) * 0.5;
+                final2 = min(max(final2,0),255);
+                image (i,j,k) = final2;
+
+            }
+        }
+    }
+}
+
+inline void Brightness::brighten(Image &image) {
+    for (int i = 0 ; i < image.width; i++){
+        for (int j = 0 ; j< image.height; j++) {
+            int final ;
+            for (int k = 0; k < image.channels; k++) {
+                final = image(i, j, k)* 1.5;
+                final = min(max(final,0),255);
+                image (i,j,k) = final;
+            }
+        }
+    }
+}
+
 inline Image Brightness::processImage(Image &image, const string &outputName) {
     while (true)
     {
-        cout<<"what do you want to make the image \n[1] Lighter \n[2] Darker \n";
+        cout<<"what do you want to make the image \n[1] Lighter \n[2] Darker\n";
 
         int choice ;
         cin >> choice ;
@@ -208,41 +285,16 @@ inline Image Brightness::processImage(Image &image, const string &outputName) {
         {
             cout << "Invalid input. Please enter an integer.\n";
             cin.clear();
-            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            cin.ignore(INT_MAX, '\n');
         }
-        else if (choice ==1){
-
-            for (int i = 0 ; i < image.width; i++){
-                for (int j = 0 ; j< image.height; j++) {
-                    int final ;
-                    for (int k = 0; k < image.channels; k++) {
-                        final = image(i, j, k)*1.5;
-                        final = min(max(final,0),255);
-                        image (i,j,k) = final;
-                    }
-                }
-            }
-            image.saveImage(outputName);
+        else if (choice == 1){
+            brighten(image);
             cout << "Image brightened.\n";
-            system(outputName.c_str());
             break;
         }
-        else if (choice ==2){
-            for (int i =0 ; i < image.width; i++){
-                for (int j =0 ; j< image.height; j++) {
-                    int final2;
-                    for (int k = 0; k < image.channels; k++) {
-
-                        final2 = image(i, j, k) * 0.5;
-                        final2 = min(max(final2,0),255);
-                        image (i,j,k)=final2;
-
-                    }
-                }
-            }
-            image.saveImage(outputName);
+        else if (choice == 2){
+            darken(image);
             cout << "Image darkened.\n";
-            system(outputName.c_str());
             break;
         }
         else {
@@ -256,54 +308,54 @@ inline string Flip::getFilterName() const {
     return "Flip";
 }
 
-inline Image Flip::processImage(Image &image, const string &outputName) {
-    string new_name;
-    cout << "enter the new image name"<< endl ;
-    cin >> new_name;
-    int flip_direction;
-    cout << "Choose the flip direction: " << endl;
-    cout << "1. Horizontal\n2. Vertical" << endl;
-    cin >> flip_direction;
-
-    // Create a new Image object for the flipped version
+inline Image Flip::flipVertical(Image &image) {
     Image flippedImage(image.width, image.height);
+    for (int i = 0; i < image.width; ++i) {
+        for (int j = 0; j < image.height; ++j) {
+            int flippedRow = image.height - 1 - j;
+            for (int k = 0; k < image.channels; ++k) {
+                flippedImage(i, flippedRow, k) = image(i, j, k);
+            }
+        }
+    }
+    return flippedImage;
+}
+
+inline Image Flip::flipHorizontal(Image &image) {
+    Image flippedImage(image.width, image.height);
+    for (int i = 0; i < image.width; ++i) {
+        for (int j = 0; j < image.height; ++j) {
+            int flippedColumn = image.width - 1 - i;
+            for (int k = 0; k < image.channels; ++k) {
+                flippedImage(flippedColumn, j, k) = image(i, j, k);
+            }
+        }
+    }
+    return flippedImage;
+}
+
+inline Image Flip::processImage(Image &image, const string &outputName) {
+    int flip_direction;
+    cout << "1. Horizontal\n2. Vertical\n";
+    cout << "Choose the Flip Direction: " << endl;
+    cin >> flip_direction;
 
     while (true)
     {
-
         // Flip horizontally
         if (flip_direction == 1) {
-            for (int i = 0; i < image.width; ++i) {
-                for (int j = 0; j < image.height; ++j) {
-                    int flippedColumn = image.width - 1 - i;
-                    for (int k = 0; k < image.channels; ++k) {
-                        flippedImage(flippedColumn, j, k) = image(i, j, k);
-                    }
-                }
-            }
-            flippedImage.saveImage(outputName);
-            system(outputName.c_str());
+            image = flipHorizontal(image);
             cout << "Image flipped horizontally.\n ";
             break;
         }
         // Flip vertically
          if (flip_direction == 2) {
-            for (int i = 0; i < image.width; ++i) {
-                for (int j = 0; j < image.height; ++j) {
-                    int flippedRow = image.height - 1 - j;
-                    for (int k = 0; k < image.channels; ++k) {
-                        flippedImage(i, flippedRow, k) = image(i, j, k);
-                    }
-                }
-            }
-
-            flippedImage.saveImage(outputName);
-            system(outputName.c_str());
+            image = flipVertical(image);
             cout << "Image flipped vertically.\n ";
             break;
 
         }
-        cout<< "please enter valid flip direction \n";
+        cout<< "Please enter a valid flip direction\n";
         cin.clear();
         cin.ignore(INT_MAX, '\n');
         cin >> flip_direction ;
