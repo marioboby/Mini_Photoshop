@@ -14,14 +14,14 @@ class UserUI {
 public:
     ImageProcessor *processor;
     UserUI(ImageProcessor *proc) {
-        proc = processor;
+        processor = proc;
     }
     virtual ~UserUI() = default;
     void mainMenu() const;
     Image loadImage(string name) const;
     void frameColor() const;
     void setImageName(string &outputName) const;
-    void saveImage();
+    void saveImage(Image &image, string &outputName);
 };
 
 inline void UserUI::frameColor() const {
@@ -69,8 +69,11 @@ inline void UserUI::setImageName(string &outputName) const {
     cout << "Enter Name of Saved Image: ";
     cin >> outputName;
 }
-inline void UserUI::saveImage() {
-
+inline void UserUI::saveImage(Image &image, string &outputName) {
+    image = processor->processImage(image, outputName);
+    cout << "Image Processed Successfully By Filter " << processor->getFilterName() << endl;
+    image.saveImage(outputName);
+    system(outputName.c_str());
 }
 
 
