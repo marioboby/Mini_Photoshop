@@ -51,56 +51,57 @@ int main () {
                 break;
             case 6:
                 ui.setImageName(outputName);
-                processor = new GrayScale();
+                processor = new Invert();
                 mn.saveImg(result, outputName);
                 break;
             case 7:
                 ui.setImageName(outputName);
-                processor = new BlackWhite();
+                processor = new Merge();
                 mn.saveImg(result, outputName);
                 break;
             case 8:
                 ui.setImageName(outputName);
-                processor = new InfraRed();
+                processor = new Rotate();
                 mn.saveImg(result, outputName);
                 break;
             case 9:
                 ui.setImageName(outputName);
-                processor = new Brightness();
+                processor = new Crop();
                 mn.saveImg(result, outputName);
                 break;
             case 10:
                 ui.setImageName(outputName);
-                processor = new Flip();
+                processor = new addFrame();
                 mn.saveImg(result, outputName);
                 break;
             case 11:
                 ui.setImageName(outputName);
-                processor = new GrayScale();
+                processor = new EdgeDetect();
                 mn.saveImg(result, outputName);
                 break;
             case 12:
                 ui.setImageName(outputName);
-                processor = new BlackWhite();
+                processor = new Resize();
                 mn.saveImg(result, outputName);
                 break;
             case 13:
                 ui.setImageName(outputName);
-                processor = new InfraRed();
+                processor = new Blur();
                 mn.saveImg(result, outputName);
                 break;
             case 14:
                 ui.setImageName(outputName);
-                processor = new Brightness();
+                processor = new Yellow();
                 mn.saveImg(result, outputName);
                 break;
             case 15:
                 ui.setImageName(outputName);
-                processor = new Flip();
+                processor = new Purple();
                 mn.saveImg(result, outputName);
                 break;
             case 16:
                 image = mn.loadImage(name);
+                break;
             case 17:
                 cout << "Exitting... Thank you for Using Mini Photoshop!";
                 running = false;
@@ -110,6 +111,5 @@ int main () {
         }
 
     }
-
     return 0;
 }

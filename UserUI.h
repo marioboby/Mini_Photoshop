@@ -20,7 +20,7 @@ inline void UserUI::frameColor() const {
 
 }
 inline void UserUI::mainMenu() const {
-    cout << "[1] Grayscale\n"
+    cout << "[1] Grayscale\n"         // Done 1,2,3,4,5,6,7,8,..,..,11,12,13,14,15
             "[2] Black and White\n"
             "[3] Infrared image\n"
             "[4] Brightness\n"
@@ -38,7 +38,7 @@ inline void UserUI::mainMenu() const {
             "[16] Load Image\n"
             "[17] Exit\n";
 
-    cout << "Choose the filter: \n";
+    cout << "Choose the filter: ";
 }
 inline void UserUI::setImageName(string &outputName) const {
     cout << "Enter Name of Saved Image: ";
